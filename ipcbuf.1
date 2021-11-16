@@ -1,0 +1,203 @@
+.Dd November 15, 2021
+.Dt ipcbuf 1
+.Os
+.Sh NAME
+.Nm ipcbuf
+.Nd test and report on the size of an IPC kernel buffer
+.Sh SYNOPSIS
+.Nm
+.Op Fl chlq
+.Op Fl P Ar size
+.Op Fl R Ar size
+.Op Fl S Ar size
+.Op Fl n Ar num
+.Op Fl s Ar type
+.Op Fl t Ar type
+.Ar chunk
+.Op Ar chunk|inc
+.Sh DESCRIPTION
+The
+.Nm
+tool tries to determine the maximum size of the buffer
+used for the given IPC method.
+To do that, it writes data to the given form of IPC
+until the write operation would block and then reports
+the total size of bytes written.
+.Sh OPTIONS
+The following options are supported by
+.Nm :
+.Bl -tag -width r_size_
+.It Fl P Ar size
+Try to set the pipe's size to
+.Ar size
+bytes.
+(Note: Linux only.)
+.It Fl R Ar size
+Try to set the SO_RCVBUF size to
+.Ar size
+bytes (socket/socketpair only).
+.It Fl S Ar size
+Try to set the SO_SNDBUF size to
+.Ar size
+bytes (socket/socketpair only).
+.It Fl c
+Write one or
+.Fl n
+consecutive, fixed size chunks.
+.It Fl h
+Display help and exit.
+.It Fl l
+Write data in a loop.
+This is the default mode.
+.It Fl n Ar num
+When writing chunks (see
+.Fl c Ns ),
+write this many (additional) chunks.
+.It Fl q
+Be quiet and only print the final buffer size that was
+determined.
+.It Fl s Ar type
+Use a socket/socketpair of this type.
+Can be "dgram" or "stream" for PF_LOCAL sockets and
+socketpairs or "inet-dgram", "inet6-dgram",
+"inet-stream", "inet6-stream" for network sockets.
+Defaults to "dgram".
+.It Fl t Ar type
+Specify the type of IPC to test.
+Must be one of "pipe", "fifo", "socket", or "socketpair".
+Defaults to "pipe".
+.El
+.Pp
+If an additional
+.Ar chunk
+argument is specified, then
+.Nm
+will begin writing data with a chunk of this many
+bytes, otherwise a single byte.
+.Pp
+If a second
+.Ar chunk|inc
+argument is specified, then
+.Nm
+will increment the initial chunk by this many bytes
+when in "loop" mode (the default, or when
+.Fl l
+is specified), or, if in "chunk" mode (i.e., if
+.Fl c
+is specified), write a second chunk of this many
+bytes.
+If
+.Fl n Ar num
+is given, and only a single chunk was specified, then
+write
+.Ar num
+chunks of the given size; if a second chunk was given,
+then write
+.Ar num
+additional chunks of that size.
+.Sh DETAILS
+Different forms of interprocess communication (IPC)
+utilize different internal kernel structures and
+buffers.
+The size of these buffers may be exposed to the user
+via constants or e.g. a
+.Xr sysctl 8 ,
+but may be difficult to determine specifically at
+runtime and differ across different operating systems.
+.Pp
+The
+.Nm
+tool will attempt to report the accurate, observed
+maximum size of the buffer in question.  It does so by
+writing increasing amounts of data into such an IPC
+buffer until the operation would block (or otherwise
+fail), then reports the total number of bytes written.
+.Pp
+Different forms of IPC behave differently whether data
+is written in small or increasing chunks versus large
+chunks, and the total number of data that was
+successfully written may end up being different from
+what the system exposes to the user.
+.Pp
+.Nm
+supports two different modes of writing data: "loop"
+and "chunk" mode.
+In "loop" mode,
+.Nm
+starts writing a small a mount of data and then
+increments how many bytes it writes until the buffer
+is full.
+In "chunk" mode,
+.Nm
+simply writes two or more chunks of the given size.
+.Pp
+In addition,
+.Nm
+tries to report the size of the IPC buffer as best as
+it is exposed to the user.
+.Sh EXAMPLES
+The following examples illustrate common usage of this tool.
+.Pp
+To simply report the default size of the buffer used
+for a
+.Xr pipe 2 :
+.Bd -literal -offset indent
+ipcbuf
+.Ed
+.Pp
+To attempt to write 4 consecutive chunks of size 16385
+each:
+.Bd -literal -offset indent
+ipcbuf -n 4 -c 16385
+.Ed
+.Pp
+To write a chunk of 1024 bytes into a fifo, then
+increment the chunk in a loop by 512 bytes:
+.Bd -literal -offset indent
+ipcbuf -t fifo 1024 512
+.Ed
+.Pp
+To write as many 2048 byte sized chunks as will fit
+into a
+.Xr socketpair 2:
+.Bd -literal -offset indent
+ipcbuf -t socketpair 2048 0
+.Ed
+.Pp
+To write a chunk of 256 bytes into a STREAM socket,
+then write 257, then 258, then 259, ... bytes until
+the socket buffer i full:
+.Bd -literal -offset indent
+ipcbuf -t socket -s stream 256 1
+.Ed
+.Pp
+To only print out the observed buffer size of a socket
+after writing one chunk of 2560 bytes and a second
+chunk of 512 bytes into a UDP socket:
+.Bd -literal -offset indent
+ipcbuf -q -c -t socket 2560 512
+.Ed
+.Pp
+To see the difference between a normal and a "big
+pipe" on NetBSD:
+.Bd -literal -offset indent
+ipcbuf 16384
+ipcbuf 16385
+.Ed
+.Sh EXIT STATUS
+.Ex -std 
+.Sh SEE ALSO
+.Xr fcntl 2 ,
+.Xr mkfifo 2 ,
+.Xr pipe 2 ,
+.Xr socket 2 ,
+.Xr socketpair 2 ,
+.Xr sysctl 8
+.Sh HISTORY
+.Nm
+was originally written by
+.An Jan Schaumann
+.Aq jschauma@netmeister.org
+in Novermber 2021.
+.Sh BUGS
+Please file bugs and feature requests by emailing the author.
