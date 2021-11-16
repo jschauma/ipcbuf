@@ -51,7 +51,7 @@
 #include <linux/sockios.h>
 #endif
 
-#ifndef __sun
+#if !defined(__sun) && !defined(__linux)
 #include <sys/sysctl.h>
 #endif
 
