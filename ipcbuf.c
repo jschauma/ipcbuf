@@ -51,8 +51,10 @@
 #include <linux/sockios.h>
 #endif
 
+#ifndef __linux
 #ifndef __sun
 #include <sys/sysctl.h>
+#endif
 #endif
 
 #include <err.h>
