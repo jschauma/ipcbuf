@@ -828,6 +828,7 @@ doSocket() {
 		}
 	} else if (SOCK_DOMAIN == PF_INET) {
 		struct sockaddr_in *sin = (struct sockaddr_in *)&netsock;
+		memset(sin, 0, sizeof(*sin));
 
 		if (inet_pton(PF_INET, "127.0.0.1", &(sin->sin_addr)) != 1) {
 			err(EXIT_FAILURE, "inet_pton");
@@ -848,17 +849,13 @@ doSocket() {
 #endif
 	} else if (SOCK_DOMAIN == PF_INET6) {
 		struct sockaddr_in6 *sin = (struct sockaddr_in6 *)&netsock;
+		memset(sin, 0, sizeof(*sin));
 
-/* For some reason FreeBSD correctly converts "::1", but then
- * bind(2) fails with EADDRNOTAVAIL. No idea why. */
-#ifdef __FreeBSD__
-		sin->sin6_addr = in6addr_any;
-#else
 		if (inet_pton(PF_INET6, "::1", &(sin->sin6_addr)) != 1) {
 			err(EXIT_FAILURE, "inet_pton");
 			/* NOTREACHED */
 		}
-#endif
+
 		sin->sin6_family = PF_INET6;
 		sin->sin6_port = htons(port);
 		s = sin;
