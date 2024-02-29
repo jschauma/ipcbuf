@@ -142,22 +142,23 @@ printFdQueueSize(int fd, const char *which) {
 
 /* Looks like FreeBSD doesn't support FION* for pipes or fifos,
    likewise for Linux and SIOC*. */
-#if defined(__FreeBSD__) || defined(__linux)
-	if ((IPC_TYPE == IPC_SOCKET) || (IPC_TYPE == IPC_SOCKETPAIR)) {
+#if defined(__FreeBSD__)
+	if ((IPC_TYPE != IPC_SOCKET) && (IPC_TYPE != IPC_SOCKETPAIR))
+		return -1;
+#elif defined(__linux)
+	if ((req == SIOCOUTQ) && (IPC_TYPE != IPC_SOCKET) &&
+	    (IPC_TYPE != IPC_SOCKETPAIR))
+		return -1;
 #endif
-		int n;
-		if (ioctl(fd, req, &n) == -1) {
-			err(EXIT_FAILURE, "ioctl");
-			/* NOTREACHED */
-		}
-		if (!QUIET) {
-			(void)printf("%-15s: %8d\n", which, n);
-		}
-		return n;
-#if defined(__FreeBSD__) || defined(__linux)
+	int n;
+	if (ioctl(fd, req, &n) == -1) {
+		err(EXIT_FAILURE, "ioctl");
+		/* NOTREACHED */
 	}
-#endif
-	return -1;
+	if (!QUIET) {
+		(void)printf("%-15s: %8d\n", which, n);
+	}
+	return n;
 }
 
 void
