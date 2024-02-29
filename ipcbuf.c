@@ -400,6 +400,10 @@ parseArgs(int argc, char **argv) {
 			IPC_TYPE = IPC_SOCKET;
 		} else if (strcasecmp(type, "socketpair") == 0) {
 			IPC_TYPE = IPC_SOCKETPAIR;
+		} else {
+			errx(EXIT_FAILURE, "Unknown IPC type '%s'.\n"
+					   "Supported types are: fifo, pipe, socket, socketpair.", type);
+			/* NOTREACHED */
 		}
 	}
 
@@ -968,6 +972,7 @@ main(int argc, char **argv) {
 		doSocketpair();
 		break;
 	default:
+		/* This should never happen. */
 		(void)fprintf(stderr, "Unknown IPC type: %d\n", IPC_TYPE);
 		exit(EXIT_FAILURE);
 		/* NOTREACHED */
