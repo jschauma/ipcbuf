@@ -126,7 +126,7 @@ sysctlbyname(const char *sname, void *oldp, size_t *oldlenp,
 		mib[2] = SOCK_STREAM;
 		mib[3] = UNPCTL_RECVSPACE;
 	} else {
-		errx(EXIT_FAILURE, "Unexpected sysctl name '%s'.\n", sname); 
+		errx(EXIT_FAILURE, "Unexpected sysctl name '%s'.\n", sname);
 		/* NOTREACHED */
 	}
 
