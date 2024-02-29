@@ -4,14 +4,14 @@ ipcbuf - test/report the size of an IPC kernel buffer
 Different forms of IPC utilize different in-kernel
 buffers, depending on a variety of possibly
 system-specific variables or settings, including
-default max values, hard-code kernel limits, run-time
+default max values, hard-coded kernel limits, run-time
 configurable settings such as `sysctl(8)`s etc.
 
 To determine what the size of such a buffer might be,
 the `ipcbuf` command can be used in one of two ways:
-writing variable- or fixed-sized chunks of data in an
-loop until the buffer is filled, or by writing
-a fixed-size number of consecutive chunks.
+writing variable- or fixed-sized chunks of data in a
+loop until the buffer is filled, or writing a fixed
+number of consecutive chunks.
 
 Doing so lets you analyze the buffer sizes and factors
 that influence them, as illustrated in this analysis:
@@ -44,6 +44,7 @@ tested and confirmed to build and work on
 - macOS 11.6.1
 - Linux 5.8.15 / Fedora 33
 - OmniOS 5.11
+- OpenBSD 7.4
 
 ---
 
@@ -143,12 +144,12 @@ EXAMPLES
 
 	   ipcbuf -t fifo 1024 512
 
-     To write as many 2048 byte sized chunks as will fit into a socketpair(2:)
+     To write as many 2048 byte sized chunks as will fit into a socketpair(2):
 
 	   ipcbuf -t socketpair 2048 0
 
      To write a chunk of 256 bytes into a STREAM socket, then write 257, then
-     258, then 259, ... bytes until the socket buffer i full:
+     258, then 259, ... bytes until the socket buffer is full:
 
 	   ipcbuf -t socket -s stream 256 1
 
@@ -170,7 +171,7 @@ SEE ALSO
 
 HISTORY
      ipcbuf was originally written by Jan Schaumann <jschauma@netmeister.org>
-     in Novermber 2021.
+     in November 2021.
 
 BUGS
      Please file bugs and feature requests by emailing the author.
