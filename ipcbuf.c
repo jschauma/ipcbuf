@@ -43,6 +43,13 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+
+#ifdef __OpenBSD__
+#include <netinet/ip_var.h>
+#include <netinet/udp.h>
+#include <netinet/udp_var.h>
+#endif
+
 #include <sys/ioctl.h>
 #include <sys/param.h>
 #include <sys/resource.h>
@@ -98,6 +105,34 @@ char *SET_SOCKDOMAIN = "PF_LOCAL";
 int SOCK_DOMAIN = PF_LOCAL;
 
 #define PROGNAME "ipcbuf"
+
+#ifdef __OpenBSD__
+/* OpenBSD doesn't have sysctlbyname(3), so fake it: */
+int
+sysctlbyname(const char *sname, void *oldp, size_t *oldlenp,
+    void *newp, size_t newlen) {
+	int mib[4] = { CTL_NET, 0, 0, 0 };
+
+	if (strcmp(sname, "net.inet.udp.recvspace") == 0) {
+		mib[1] = PF_INET;
+		mib[2] = IPPROTO_UDP;
+		mib[3] = UDPCTL_RECVSPACE;
+	} else if (strcmp(sname, "net.local.dgram.recvspace") == 0) {
+		mib[1] = PF_UNIX;
+		mib[2] = SOCK_DGRAM;
+		mib[3] = UNPCTL_RECVSPACE;
+	} else if (strcmp(sname, "net.local.stream.recvspace") == 0) {
+		mib[1] = PF_UNIX;
+		mib[2] = SOCK_STREAM;
+		mib[3] = UNPCTL_RECVSPACE;
+	} else {
+		errx(EXIT_FAILURE, "Unexpected sysctl name '%s'.\n", sname); 
+		/* NOTREACHED */
+	}
+
+	return sysctl(mib, 4, oldp, oldlenp, newp, newlen);
+}
+#endif
 
 int
 printFdQueueSize(int fd, const char *which) {
@@ -862,8 +897,10 @@ doSocket() {
 #ifndef __linux
 		if (SOCK_TYPE == SOCK_DGRAM) {
 			sysctl = "net.inet.udp.recvspace";
+#  ifndef __OpenBSD__
 		} else {
 			sysctl = "net.inet.tcp.recvspace";
+#  endif
 		}
 #endif
 	} else if (SOCK_DOMAIN == PF_INET6) {
@@ -885,6 +922,12 @@ doSocket() {
 			sysctl = "net.inet6.udp6.recvspace";
 		} else {
 			sysctl = "net.inet6.tcp6.recvspace";
+		}
+#elif defined(__OpenBSD__)
+		/* Per https://man.openbsd.org/sysctl.2, OpenBSD reuses
+		 * net.inet.tcp and net.inet.udp for TCP/UDP over IPv6. */
+		if (SOCK_TYPE == SOCK_DGRAM) {
+			sysctl = "net.inet.udp.recvspace";
 		}
 #endif
 	} else {
