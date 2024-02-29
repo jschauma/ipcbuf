@@ -14,7 +14,7 @@ help:
 
 # OmniOS needs -lsocket; I should add some OS-specific
 # logic here to set the LDFLAGS.
-${NAME}:
+${NAME}: ${NAME}.c
 	${CC} ${CFLAGS} -o ${NAME} ${NAME}.c
 
 clean:
