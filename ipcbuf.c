@@ -321,10 +321,13 @@ setPipeSize(int fd) {
 }
 
 int
-inputNumber(const char *in, int threshold) {
+inputNumber(const char *in, int threshold, const char *what) {
 	int n;
-	if ((n = (int)strtol(in, NULL, 10)) < threshold) {
-		(void)fprintf(stderr, "Please provide a number >= %d.\n", threshold);
+	char *endptr;
+	if (((n = (int)strtol(in, &endptr, 10)) < threshold) ||
+	    (*endptr != '\0')) {
+		(void)fprintf(stderr, "Please provide a number >= %d for %s.\n",
+		    threshold, what);
 		exit(EXIT_FAILURE);
 		/* NOTREACHED */
 	}
@@ -343,13 +346,13 @@ parseArgs(int argc, char **argv) {
 	while ((ch = getopt(argc, argv, "P:R:S:chln:qs:t:")) != -1) {
 		switch(ch) {
 		case 'P':
-			SET_PIPEBUF = inputNumber(optarg, 1);
+			SET_PIPEBUF = inputNumber(optarg, 1, "-P");
 			break;
 		case 'R':
-			SET_RCVBUF = inputNumber(optarg, 1);
+			SET_RCVBUF = inputNumber(optarg, 1, "-R");
 			break;
 		case 'S':
-			SET_SNDBUF = inputNumber(optarg, 1);
+			SET_SNDBUF = inputNumber(optarg, 1, "-S");
 			break;
 		case 'c':
 			MODE = CHUNK;
@@ -363,7 +366,7 @@ parseArgs(int argc, char **argv) {
 			MODE = LOOP;
 			break;
 		case 'n':
-			NUM_CHUNKS = inputNumber(optarg, 0);
+			NUM_CHUNKS = inputNumber(optarg, 0, "-n");
 			break;
 		case 'q':
 			QUIET = 1;
@@ -445,11 +448,11 @@ parseArgs(int argc, char **argv) {
 	}
 
 	if (argc > 0) {
-		CHUNK1 = inputNumber(argv[0], 0);
+		CHUNK1 = inputNumber(argv[0], 0, "initial chunk size");
 	}
 
 	if (argc > 1) {
-		CHUNK2 = inputNumber(argv[1], 0);
+		CHUNK2 = inputNumber(argv[1], 0, "second argument");
 	}
 }
 
