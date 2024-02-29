@@ -537,6 +537,7 @@ readData(int fd) {
 			break;
 		}
 	}
+	free(buf);
 	
 	if (!QUIET) {
 		(void)printf("%-15s: %8d\n", "Read", total);
