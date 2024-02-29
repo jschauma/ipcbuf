@@ -35,6 +35,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __linux
+/* Needed for F_[GS]ETPIPE_SZ (_GNU_SOURCE has to come before any includes.) */
+#define _GNU_SOURCE
+#include <linux/sockios.h>
+#endif
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
@@ -44,12 +50,6 @@
 #include <sys/stat.h>
 #include <sys/un.h>
 #include <sys/wait.h>
-
-#ifdef __linux
-/* Needed for F_SETPIPE_SZ */
-#define _GNU_SOURCE
-#include <linux/sockios.h>
-#endif
 
 #if !defined(__sun) && !defined(__linux)
 #include <sys/sysctl.h>
