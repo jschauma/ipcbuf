@@ -115,9 +115,7 @@ printFdQueueSize(int fd, const char *which) {
 #else
 		return -1;
 #endif
-	}
-
-	if (strcmp(which, "write") == 0) {
+	} else if (strcmp(which, "write") == 0) {
 #if defined(FIONWRITE)
 		req = FIONWRITE;
 		which = "FIONWRITE";
@@ -137,6 +135,9 @@ printFdQueueSize(int fd, const char *which) {
 #else
 		return -1;
 #endif
+	} else {
+		(void)fprintf(stderr, "Unexpected argument '%s' to printFdQueueSize.\n", which);
+		return -1;
 	}
 
 /* Looks like FreeBSD doesn't support FION* for pipes or fifos,
@@ -869,6 +870,9 @@ doSocket() {
 			sysctl = "net.inet6.tcp6.recvspace";
 		}
 #endif
+	} else {
+		errx(EXIT_FAILURE, "Unexpected socket domain '%d'. Bailing out.\n", SOCK_DOMAIN);
+		/* NOTREACHED */
 	}
 
 	if (bind(wfd, (struct sockaddr *)s, s_size)) {
