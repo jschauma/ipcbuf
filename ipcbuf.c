@@ -101,7 +101,7 @@ int SOCK_DOMAIN = PF_LOCAL;
 
 int
 printFdQueueSize(int fd, const char *which) {
-	int req;
+	unsigned long req;
 
 	/* We may not have any of these at all, so
 	 * let's silence compiler warnings about
@@ -795,7 +795,7 @@ void
 doSocket() {
 	int rfd, wfd;
 	int pid = 0;
-	int port = 12345;
+	uint16_t port = 12345;
 	char *sysctl = "invalid";
 
 	reportTest("%s %s socket", SET_SOCKDOMAIN, SET_SOCKTYPE);
