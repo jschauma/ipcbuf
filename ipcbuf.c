@@ -275,21 +275,29 @@ writeLoop(int fd, int count, int inc) {
 
 void
 usage() {
-	(void)printf("Usage: %s [-chlq] [-[PRS] bufsiz] [-n num] [-s type] [-t type] [chunk] [chunk|inc]\n",
-				PROGNAME);
-	(void)printf("-P size      try to set the pipe's size to this many bytes (Linux only)\n");
-	(void)printf("-R size      try to set the SO_RCVBUF size to this many bytes (socket/socketpair only)\n");
-	(void)printf("-S size      try to set the SO_SNDBUF size to this many bytes (socket/socketpair only)\n");
-	(void)printf("-c           write two consecutive chunks\n");
-	(void)printf("-h           print this help\n");
-	(void)printf("-l           write in a loop\n");
-	(void)printf("-n num       write this many additional chunks\n");
-	(void)printf("-q           be quiet and only print the final number\n");
-	(void)printf("-s type      use this type of sockt ([inet[6]-]dgram or [inet[6]-]stream)\n");
-	(void)printf("-t type      use this type of IPC (fifo, pipe, socket, socketpair)\n");
-	(void)printf("[chunk]      initial chunk size; 1 if not given\n");
-	(void)printf("[chunk|inc]  second chunk size or loop increment\n");
-	(void)printf("             if not given, use first chunk size in chunk mode, double first chunk size in loop mode\n");
+	(void)fprintf(stderr,
+	    "usage: %s [-chlq] [-[PRS] bufsiz] [-n num] [-s type] [-t type]"
+	    " [chunk] [chunk|inc]\n"
+	    "-P size      try to set the pipe's size to this many bytes"
+	    " (Linux only)\n"
+	    "-R size      try to set the SO_RCVBUF size to this many bytes\n"
+	    "             (socket/socketpair only)\n"
+	    "-S size      try to set the SO_SNDBUF size to this many bytes\n"
+	    "             (socket/socketpair only)\n"
+	    "-c           write two consecutive chunks\n"
+	    "-h           print this help\n"
+	    "-l           write in a loop\n"
+	    "-n num       write this many additional chunks\n"
+	    "-q           be quiet and only print the final number\n"
+	    "-s type      use this type of socket"
+	    " ([inet[6]-]dgram or [inet[6]-]stream)\n"
+	    "-t type      use this type of IPC"
+	    " (fifo, pipe, socket, socketpair)\n"
+	    "[chunk]      initial chunk size; 1 if not given\n"
+	    "[chunk|inc]  second chunk size or loop increment\n"
+	    "             if not given, use first chunk size in chunk mode,\n"
+	    "             double first chunk size in loop mode\n",
+	    PROGNAME);
 }
 
 void
