@@ -128,6 +128,9 @@ DETAILS
      In addition, ipcbuf tries to report the size of the IPC buffer as best as
      it is exposed to the user.
 
+EXIT STATUS
+     The ipcbuf utility exits 0 on success, and >0 if an error occurs.
+
 EXAMPLES
      The following examples illustrate common usage of this tool.
 
@@ -162,9 +165,6 @@ EXAMPLES
 
 	   ipcbuf 16384
 	   ipcbuf 16385
-
-EXIT STATUS
-     The ipcbuf utility exits 0 on success, and >0 if an error occurs.
 
 SEE ALSO
      fcntl(2), mkfifo(2), pipe(2), socket(2), socketpair(2), sysctl(8)
